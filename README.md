@@ -1,6 +1,5 @@
 # boot-admin
 
-项目基于：[实训邦Spring Boot权限管理系统视频](https://www.bilibili.com/video/BV1bt4y1e7dA?from=search&seid=9877326952665576365)
 
 ## 介绍
 基于SpringBoot的后台权限管理系统，可作为脚手架，用于快速搭建项目
