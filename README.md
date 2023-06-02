@@ -33,7 +33,7 @@ IntelliJ IDEA
 
 
 ## 页面布局
-![页面布局](doc/页面布局.png)
+![页面布局](https://github.com/stormjerome/boot-admin/tree/main/doc/页面布局.png)
 
 
 ## 项目运行
