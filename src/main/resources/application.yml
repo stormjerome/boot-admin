@@ -1,0 +1,58 @@
+spring:
+  profiles:
+    active: dev
+
+  #  数据源配置
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/boot-admin?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password: 123456
+    platform: mysql
+    # 连接池配置
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      #初始化大小、最小、最大
+      initial-size: 1
+      min-idle: 3
+      max-active: 20
+      # 连接等待超时时间
+      maxWait: 60000
+      # 间隔多久才能进行一次检测需要关闭的空闲连接
+      time-between-eviction-runs-millis: 60000
+      # 一个连接在池中最小生成的时间
+      min-evictable-idle-time-millis: 30000
+      validation-query: select 'x'
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 是否缓存preparedStatement，打开PSCache，并指定每个链接上PSCache的大小。官方建议Mysql下关闭，如果用SQL防火墙，建议打开
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat,wall,slf4j
+      # 慢sql配置
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+  # 热部署实时更新目录
+  devtools:
+    restart:
+      additional-paths: resources/**,static/**,templates/**
+
+  thymeleaf:
+    cache: false
+
+#Mybatis配置
+mybatis:
+  type-aliases-package: com.ywy.bootadmin.model
+  mapper-locations: classpath:/mappers/*
+  configuration:
+    map-underscore-to-camel-case: true
+
+server:
+  # 端口号
+  port: 8080
+
+# 日志信息
+logging:
+  # 日志文件目录
+  path: logs/

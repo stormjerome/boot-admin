@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>管理后台-用户列表</title>
+    <header th:replace="header::html"/>
+</head>
+<body>
+    <div class="x-nav">
+        <span class="layui-breadcrumb">
+            <a href="#">首页</a>
+            <a href="#">用户管理</a>
+            <a><cite>用户列表</cite></a>
+        </span>
+        <a class="layui-btn layui-btn-small refresh" onclick="location.reload()" title="刷新">
+            <i class="layui-icon layui-icon-refresh"></i>
+        </a>
+    </div>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-body" permission="sys:user:query">
+                        <form class="layui-form layui-col-space5">
+                            <div class="layui-inline layui-show-xs-block">
+                                <input type="text" name="username" placeholder="请输入用户名" class="layui-input">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <button class="layui-btn" lay-submit="" lay-filter="search">
+                                    <i class="layui-icon layui-icon-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="layui-card-header">
+                        <button class="layui-btn layui-btn-danger" onclick="delAll()" permission="sys:user:del">
+                            <i class="layui-icon layui-icon-delete"></i>批量删除
+                        </button>
+                        <button class="layui-btn" onclick="xadmin.open('新增用户','/user/add')" permission="sys:user:add">
+                            <i class="layui-icon layui-icon-add-circle-fine"></i>添加
+                        </button>
+                    </div>
+                    <div class="layui-card-body">
+                        <table id="userTable" lay-filter="userTable"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/html" id="toolBar">
+        <a class="layui-btn layui-btn-xs" lay-event="edit" permission="sys:user:edit">编辑</a>
+        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del" permission="sys:user:del">删除</a>
+    </script>
+    <script type="text/javascript">
+        var table;
+
+        layui.use(['table', 'form', 'layer'], function () {
+            table = layui.table;
+            var form = layui.form,
+                layer = layui.layer;
+
+            // 表格渲染
+            renderTable(new FormData());
+
+            // 监听工具条
+            table.on('tool(userTable)', function (obj) {
+                var data = obj.data;
+
+                // 删除操作
+                if (obj.event === 'del') {
+                    layer.confirm('确认要删除吗？', function (index) {
+                        // 发送请求异步删除数据
+                        $.ajax({
+                            url: '/user/delete',
+                            type: "DELETE",
+                            data: {id: data.id},
+                            dataType: 'json',
+                            success: function (result) {
+                                if (result.httpCode != 200 || result.retCode != 0) {
+                                    layer.alert(result.retMsg);
+                                } else {
+                                    layer.alert("删除成功", {icon: 1}, function (index) {
+                                        //关闭弹窗
+                                        layer.close(index);
+                                        // 刷新表格
+                                        table.reload('userTable');
+                                    });
+                                }
+                            }
+                        });
+                    });
+                } else if (obj.event === 'edit') {
+                    // 编辑操作
+                    xadmin.open('编辑用户信息', '/user/edit?id=' + data.id);
+                }
+            });
+
+            // 搜索功能
+            form.on('submit(search)', function (data) {
+                // 表格渲染
+                renderTable(data.field)
+                return false;
+            });
+        });
+
+        /**
+         * 批量删除
+         */
+        function delAll() {
+            layer.confirm('确认要删除吗？', function (index) {
+                // 发异步进行删除所有被选中的
+                layer.msg('暂未实现', {icon: 1});
+                $(".layui-form-checked").not('.header').parents('tr').remove();
+            });
+        }
+
+        /**
+         * 表格渲染
+         * @param field
+         */
+        function renderTable(field) {
+            // 表格渲染
+            table.render({
+                elem: '#userTable',
+                url: '/user/list', //数据接口
+                page: true, //开启分页
+                where: {//查询条件
+                    "username": field.username
+                },
+                parseData: function (res) { //res 即为原始返回的数据
+                    return {
+                        "code": res.retCode,     //解析接口状态
+                        "msg": res.retMsg,       //解析提示文本
+                        "count": res.data.total, //解析数据长度
+                        "data": res.data.datas   //解析数据列表
+                    };
+                },
+                cols: [
+                    [   //表头
+                        {type: 'checkbox', fixed: 'left'},
+                        {field: 'id', title: 'ID', sort: true},
+                        {field: 'username', title: '用户名'},
+                        {field: 'nickname', title: '昵称'},
+                        {field: 'telephone', title: '手机号'},
+                        {field: 'email', title: '邮箱'},
+                        {
+                            field: 'status', title: '状态', templet: function (d) {
+                                return d.status == '1' ? '启用' : '禁用';
+                            }
+                        },
+                        {title: '操作', toolbar: '#toolBar', fixed: 'right', width: 150}
+                    ]
+                ],
+                done:function () {
+                    checkPermissoin();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

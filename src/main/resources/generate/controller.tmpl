@@ -1,0 +1,131 @@
+package {controllerPackageName};
+
+import {groupPackageName}.common.rest.BaseResult;
+import {groupPackageName}.common.rest.DataResponse;
+import {groupPackageName}.common.rest.PageInfo;
+import {beanPackageName}.{beanName};
+import {servicePackageName}.{serviceName};
+import {groupPackageName}.util.MapUtil;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+
+/**
+ * Controller
+ * @author ywy
+ * @date
+ */
+@Controller
+@RequestMapping("/{beanParamName}")
+@Slf4j
+public class {controllerName} {
+    @Autowired
+    private {serviceName} {serviceParamName};
+
+    /**
+     * 列表
+     * @param pageInfo
+     * @param {beanParamName}
+     * @return
+     */
+    @GetMapping("/list")
+    @ResponseBody
+    @PreAuthorize("hasAuthority('{beanParamName}:query')")
+    @ApiOperation(value = "分页查询列表")
+    public DataResponse list(PageInfo pageInfo, {beanName} {beanParamName}) {
+        log.info("{controllerName}.list(), param: {}, {}", pageInfo, {beanParamName});
+
+        HashMap<String, Object> paramsMap = MapUtil.convertToMap({beanParamName});
+        BaseResult baseResult = {serviceParamName}.listByPage(pageInfo.getOffset(), pageInfo.getLimit(), paramsMap);
+        if (baseResult.isSuccess()) {
+            return DataResponse.success(baseResult.getData());
+        }
+        return DataResponse.failure(baseResult.getError());
+    }
+
+    /**
+     * 跳转到添加页面
+     * @return
+     */
+    @GetMapping("/add")
+    @PreAuthorize("hasAuthority('{beanParamName}:add')")
+    @ApiOperation("跳转到添加页面")
+    public String toAdd() {
+        return "/{beanParamName}/{beanParamName}-add";
+    }
+
+    /**
+     * 添加信息
+     * @param {beanParamName}
+     * @return
+     */
+    @PostMapping("/add")
+    @ResponseBody
+    @PreAuthorize("hasAuthority('{beanParamName}:add')")
+    @ApiOperation(value = "添加信息")
+    public DataResponse add({beanName} {beanParamName}) {
+        log.info("{controllerName}.add(), param: {}", {beanParamName});
+
+        BaseResult baseResult = {serviceParamName}.save({beanParamName});
+        if (baseResult.isSuccess()) {
+            return DataResponse.success(baseResult.getData());
+        }
+        return DataResponse.failure(baseResult.getError());
+    }
+
+    /**
+     * 跳转到修改页面
+     * @return
+     */
+    @GetMapping("/edit")
+    @PreAuthorize("hasAuthority('{beanParamName}:edit')")
+    @ApiOperation("跳转到修改页面")
+    public String toEdit(Model model, Integer id) {
+        {beanName} {beanParamName} = {serviceParamName}.get{beanName}ById(id);
+        model.addAttribute("{beanParamName}", {beanParamName});
+        return "/{beanParamName}/{beanParamName}-edit";
+    }
+
+    /**
+     * 修改信息
+     * @param {beanParamName}
+     * @return
+     */
+    @PutMapping("/edit")
+    @ResponseBody
+    @PreAuthorize("hasAuthority('{beanParamName}:edit')")
+    @ApiOperation("修改信息")
+    public DataResponse update({beanName} {beanParamName}) {
+        log.info("{controllerName}.edit(), param: {}", {beanParamName});
+
+        BaseResult baseResult = {serviceParamName}.update({beanParamName});
+        if (baseResult.isSuccess()) {
+            return DataResponse.success(baseResult.getData());
+        }
+        return DataResponse.failure(baseResult.getError());
+    }
+
+    /**
+     * 删除信息
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/delete")
+    @ResponseBody
+    @PreAuthorize("hasAuthority('{beanParamName}:del')")
+    @ApiOperation("删除信息")
+    public DataResponse delete(Integer id) {
+        log.info("{controllerName}.delete(), param: {}", id);
+
+        BaseResult baseResult = {serviceParamName}.delete(id);
+        if (baseResult.isSuccess()) {
+            return DataResponse.success(baseResult.getData());
+        }
+        return DataResponse.failure(baseResult.getError());
+    }
+}

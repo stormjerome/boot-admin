@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>管理后台-代码生成</title>
+    <header th:replace="header::html"/>
+</head>
+<body>
+    <div class="x-nav">
+        <span class="layui-breadcrumb">
+            <a href="#">首页</a>
+            <a href="#">开发工具</a>
+            <a><cite>代码生成</cite></a>
+        </span>
+    </div>
+    <div class="layui-fluid">
+        <div class="layui-row">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <form class="layui-form">
+                        <div class="layui-card-header">
+                            <div class="layui-inline layui-show-xs-block">
+                                <input type="text" name="tableName" placeholder="请输入表名" class="layui-input">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <button class="layui-btn" lay-submit="" lay-filter="show" permission="sys:generate:list">
+                                    <i class="layui-icon layui-icon-search"></i>预览代码
+                                </button>
+                                <button id="save" class="layui-btn" lay-submit="" lay-filter="save" permission="sys:generate:list">
+                                    <i class="layui-icon layui-icon-add-circle-fine"></i>保存代码
+                                </button>
+                            </div>
+                        </div>
+                        <div class="layui-card-body" id="detail">
+                            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                                <legend>基本配置</legend>
+                            </fieldset>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">保存路径</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="path" value="d:/generate" lay-verify="required" class="layui-input">
+                                </div>
+                                <label class="layui-form-label">分组包名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="groupPackageName" value="com.ywy.bootadmin" lay-verify="required" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">Bean包名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="beanPackageName" value="com.ywy.bootadmin.model" lay-verify="required" class="layui-input">
+                                </div>
+                                <label class="layui-form-label">Bean类名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="beanName" name="beanName" value="BeanTest" lay-verify="required" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">Dao包名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="daoPackageName" value="com.ywy.bootadmin.dao" lay-verify="required" class="layui-input">
+                                </div>
+                                <label class="layui-form-label">Dao类名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="daoName" name="daoName" value="BeanTestDao" lay-verify="required" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">Service包名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="servicePackageName" value="com.ywy.bootadmin.service" lay-verify="required" class="layui-input">
+                                </div>
+                                <label class="layui-form-label">Service类名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="serviceName" name="serviceName" value="ServiceTest" lay-verify="required" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">ServiceImpl包名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="serviceImplPackageName" value="com.ywy.bootadmin.service.impl" lay-verify="required" class="layui-input">
+                                </div>
+                                <label class="layui-form-label">ServiceImpl类名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="serviceImplName" name="serviceImplName" value="ServiceImplTest" lay-verify="required" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">Controller包名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" name="controllerPackageName" value="com.ywy.bootadmin.controller" lay-verify="required" class="layui-input">
+                                </div>
+                                <label class="layui-form-label">Controller类名</label>
+                                <div class="layui-input-inline">
+                                    <input type="text" id="controllerName" name="controllerName" value="ControllerTest" lay-verify="required" class="layui-input">
+                                </div>
+                            </div>
+                            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                                <legend>字段详情</legend>
+                            </fieldset>
+                            <table class="layui-table">
+                                <thead>
+                                    <tr>
+                                        <th lay-data="{field:'columnName', width:80, sort: true}">表字段名称</th>
+                                        <th lay-data="{field:'dataType', width:120, sort: true, edit: 'text'}">表字段类型</th>
+                                        <th lay-data="{field:'columnComment', edit: 'text', minWidth: 150}">表字段描述</th>
+                                        <th lay-data="{field:'fieldName', width:80, edit: 'text'}">java字段名称</th>
+                                        <th lay-data="{field:'fieldType', edit: 'text', minWidth: 100}">java字段类型</th>
+                                        <th lay-data="{field:'columnDefault', sort: true, edit: 'text'}">默认值</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="beanFields"></tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $("#detail").hide();
+        $("#save").hide();
+
+        layui.use(['form','layer'], function() {
+            var form = layui.form,
+                layer = layui.layer;
+
+            // 监听提交
+            form.on('submit(show)', function (data) {
+                var beanFields = $("#beanFields");
+                beanFields.html("");
+
+                // 发异步请求，查询表信息
+                $.ajax({
+                    url: '/generate/show',
+                    type: 'GET',
+                    data: "tableName=" + data.field.tableName,
+                    dataType: 'json',
+                    beforeSend: function() {
+                        layer.load();
+                    },
+                    success: function (result) {
+                        if (result.httpCode != 200 || result.retCode != 0) {
+                            layer.alert(result.retMsg);
+                        } else {
+                            $("#detail").show();
+                            $("#save").show();
+
+                            var beanName = result.data.beanName;
+                            $("#beanName").val(beanName);
+                            $("#daoName").val(beanName + "Dao");
+                            $("#controllerName").val(beanName + "Controller");
+                            $("#serviceName").val(beanName + "Service");
+                            $("#serviceImplName").val(beanName + "ServiceImpl");
+                            var fields = result.data.fields;
+                            var length = fields.length;
+
+                            for(var i=0; i<length; i++) {
+                                var f = fields[i];
+                                var tr = $("<tr></tr>");
+
+                                var columnName = f['columnName'];
+                                tr.append("<td><input type='hidden' name='columnName' value='" + columnName +"'>" + columnName + "</td>");
+                                tr.append("<td>" + f['dataType'] + "</td>");
+                                tr.append("<td><input name='columnComment' class='layui-input' value='" + f['columnComment'] +"'></td>");
+                                tr.append("<td><input name='fieldName' class='layui-input' value='" + f['fieldName'] +"'></td>");
+                                tr.append("<td><input name='fieldType' class='layui-input' value='" + f['fieldType'] +"'></td>");
+                                tr.append("<td>" + f['columnDefault'] + "</td>");
+
+                                beanFields.append(tr);
+                            }
+                        }
+                    }
+                });
+                layer.closeAll();
+                return false;
+            });
+
+            form.on('submit(save)', function (data) {
+                if($("#detail").is(':hidden')) {
+                    return false;
+                }
+
+                // 发异步请求，生成代码
+                $.ajax({
+                    url: '/generate/save',
+                    type: 'PUT',
+                    traditional: true, // 使用传统的方式进行序列化，使后台方便接收数组参数
+                    data: $(data.form).serialize(),
+                    dataType: 'json',
+                    beforeSend: function() {
+                        layer.load();
+                    },
+                    success: function (result) {
+                        if (result.httpCode != 200 || result.retCode != 0) {
+                            layer.alert(result.retMsg);
+                        } else {
+                            $("#detail").hide();
+                            $("#save").hide();
+
+                            layer.alert("生成成功，请到设置的目录下查看", {icon: 6});
+                        }
+                    }
+                });
+                layer.closeAll();
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>

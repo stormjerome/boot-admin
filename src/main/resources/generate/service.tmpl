@@ -1,0 +1,50 @@
+package {servicePackageName};
+
+import {beanPackageName}.{beanName};
+import {groupPackageName}.common.rest.BaseResult;
+import java.util.Map;
+
+/**
+ * Service
+ * @author ywy
+ * @date
+ */
+public interface {serviceName} {
+    /**
+     * 分页查询信息
+     * @param offset
+     * @param limit
+     * @param params
+     * @return
+     */
+    BaseResult listByPage(Integer offset, Integer limit, Map<String, Object> params);
+
+    /**
+     * 保存信息
+     * @param {beanParamName}
+     * @return
+     */
+    BaseResult save({beanName} {beanParamName});
+
+    /**
+     * 修改信息
+     * @param {beanParamName}
+     * @return
+     */
+    BaseResult update({beanName} {beanParamName});
+
+    /**
+     * 删除信息
+     * @param id
+     * @return
+     */
+    BaseResult delete(Integer id);
+
+    /**
+     * 根据id查询信息
+     * @param id
+     * @return
+     */
+    {beanName} get{beanName}ById(Integer id);
+
+}

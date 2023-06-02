@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="{daoPackageName}.{daoName}">
+    <!-- where条件 -->
+	<sql id="where">
+		<where>
+			<if test="params != null">
+{where}
+			</if>
+		</where>
+	</sql>
+
+    <!-- 查询数据个数 -->
+	<select id="count" resultType="int">
+		select count(1) from {tableName}
+		<include refid="where" />
+	</select>
+
+    <!-- 分页查询信息 -->
+	<select id="listByPage" resultType="{beanName}">
+		select * from {tableName}
+		<include refid="where" />
+		limit #{offset}, #{limit}
+	</select>
+
+    <!-- 修改信息 -->
+	<update id="update">
+		update {tableName}
+		<set>
+{updateSets}
+		</set>
+		where id = #{id}
+	</update>
+
+</mapper>

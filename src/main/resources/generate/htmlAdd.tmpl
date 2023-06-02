@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>管理后台-新增信息</title>
+    <header th:replace="header::html"></header>
+</head>
+<body>
+    <div class="layui-fluid">
+        <div class="layui-row">
+            <form class="layui-form">
+{addDivs}
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn" lay-filter="add" lay-submit="" permission="{beanParamName}:add">添加</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+	<script type="text/javascript">
+		layui.use(['form', 'layer'], function(){
+            var form = layui.form,
+                layer = layui.layer;
+
+            // 自定义验证规则
+            form.verify({
+
+            });
+
+            // 监听提交
+            form.on('submit(add)', function (data) {
+                // 发异步请求，添加信息
+                $.ajax({
+                    url: "/{beanParamName}/add",
+                    type: "POST",
+                    data: data.field,
+                    dataType: 'json',
+                    beforeSend: function() {
+                        layer.load();
+                    },
+                    success: function (result) {
+                        if(result.httpCode != 200 || result.retCode != 0) {
+                            layer.alert(result.retMsg);
+                        } else {
+                            layer.alert("添加成功", {icon: 6},function () {
+                                // 关闭当前frame
+                                xadmin.close();
+                                // 对父窗口进行刷新
+                                xadmin.father_reload();
+                            });
+                        }
+                    }
+                });
+                layer.closeAll();
+                return false;
+             });
+          });
+	</script>
+</body>
+</html>

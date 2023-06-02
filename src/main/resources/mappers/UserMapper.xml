@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org.dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ywy.bootadmin.dao.sys.UserDao">
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <if test="params != null">
+                <if test="params.username != null and params.username != ''">
+                    username like '%${params.username}%'
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <!-- 查询用户数据个数 -->
+    <select id="count" resultType="int">
+        select count(1) from sys_user
+        <include refid="where" />
+    </select>
+
+    <!-- 分页查询用户信息 -->
+    <select id="listByPage" resultType="User">
+        select * from sys_user
+        <include refid="where" />
+        limit #{offset}, #{limit}
+    </select>
+
+    <!-- 修改用户信息 -->
+    <update id="update">
+        update sys_user
+        <set>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="nickname != null">
+                nickname = #{nickname},
+            </if>
+            <if test="headImgUrl != null">
+                head_img_url = #{headImgUrl},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="status != null">
+                status = #{status}
+            </if>
+        </set>
+        where t.id = #{id}
+    </update>
+</mapper>

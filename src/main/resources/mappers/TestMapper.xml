@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ywy.bootadmin.dao.test.TestDao">
+    <!-- where条件 -->
+	<sql id="where">
+		<where>
+			<if test="params != null">
+				<if test="params.id != null and params.id != ''">
+					and id = #{params.id} 
+				</if>
+				<if test="params.field1 != null and params.field1 != ''">
+					and field1 = #{params.field1} 
+				</if>
+				<if test="params.field2 != null and params.field2 != ''">
+					and field2 = #{params.field2} 
+				</if>
+				<if test="params.field3 != null and params.field3 != ''">
+					and field3 = #{params.field3} 
+				</if>
+				<if test="params.field4 != null and params.field4 != ''">
+					and field4 = #{params.field4} 
+				</if>
+				<if test="params.field5 != null and params.field5 != ''">
+					and field5 = #{params.field5} 
+				</if>
+
+			</if>
+		</where>
+	</sql>
+
+    <!-- 查询数据个数 -->
+	<select id="count" resultType="int">
+		select count(1) from test
+		<include refid="where" />
+	</select>
+
+    <!-- 分页查询信息 -->
+	<select id="listByPage" resultType="Test">
+		select * from test
+		<include refid="where" />
+		limit #{offset}, #{limit}
+	</select>
+
+    <!-- 修改信息 -->
+	<update id="update">
+		update test
+		<set>
+			<if test="field1 != null">
+				field1 = #{field1}, 
+			</if>
+			<if test="field2 != null">
+				field2 = #{field2}, 
+			</if>
+			<if test="field3 != null">
+				field3 = #{field3}, 
+			</if>
+			<if test="field4 != null">
+				field4 = #{field4}, 
+			</if>
+			<if test="field5 != null">
+				field5 = #{field5}, 
+			</if>
+
+		</set>
+		where id = #{id}
+	</update>
+
+</mapper>

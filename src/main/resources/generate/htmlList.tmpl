@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>管理后台-列表</title>
+    <header th:replace="header::html"></header>
+</head>
+<body>
+    <div class="x-nav">
+        <span class="layui-breadcrumb">
+            <a href="#">首页</a>
+            <a href="#">{beanName}管理</a>
+            <a><cite>列表</cite></a>
+        </span>
+        <a class="layui-btn layui-btn-small refresh" onclick="location.reload()" title="刷新">
+            <i class="layui-icon layui-icon-refresh"></i>
+        </a>
+    </div>
+    <div class="x-body">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md12">
+                <div class="layui-card">
+                    <div class="layui-card-body" permission="{beanParamName}:query">
+                        <form class="layui-form layui-col-space5">
+                            <!-- 根据自己需求修改查询条件 -->
+                            <div class="layui-inline layui-show-xs-block">
+                                <input type="text" name="field1" placeholder="请输入内容" class="layui-input">
+                            </div>
+                            <div class="layui-inline layui-show-xs-block">
+                                <button class="layui-btn" lay-submit="" lay-filter="search">
+                                    <i class="layui-icon layui-icon-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="layui-card-header">
+                        <button class="layui-btn layui-btn-danger" onclick="delAll()" permission="{beanParamName}:del">
+                            <i class="layui-icon layui-icon-delete"></i>批量删除
+                        </button>
+                        <button class="layui-btn" onclick="xadmin.open('新增{beanName}','/{beanParamName}/add')" permission="{beanParamName}:add">
+                            <i class="layui-icon layui-icon-add-circle-fine"></i>添加
+                        </button>
+                    </div>
+                    <div class="layui-card-body">
+                        <table id="{beanParamName}Table" lay-filter="{beanParamName}Table"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/html" id="toolBar">
+        <a class="layui-btn layui-btn-xs" lay-event="edit" permission="{beanParamName}:edit">编辑</a>
+        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del" permission="{beanParamName}:del">删除</a>
+    </script>
+    <script type="text/javascript">
+        var table;
+
+        layui.use(['table', 'form', 'layer'], function() {
+            table = layui.table;
+            var form = layui.form,
+                layer = layui.layer;
+
+            // 表格渲染
+            renderTable(new FormData());
+
+            // 监听工具条
+            table.on('tool({beanParamName}Table)', function(obj) {
+                var data = obj.data;
+
+                // 删除操作
+                if(obj.event === 'del'){
+                    layer.confirm('确认要删除吗？', function(index) {
+                        // 发送请求异步删除数据
+                        $.ajax({
+                            url: "/{beanParamName}/delete",
+                            type: "DELETE",
+                            data: {id: data.id},
+                            dataType: 'json',
+                            success: function (result) {
+                                if (result.httpCode != 200 || result.retCode != 0) {
+                                    layer.alert(result.retMsg);
+                                } else {
+                                    layer.alert("删除成功", {icon: 1}, function (index) {
+                                        //关闭弹窗
+                                        layer.close(index);
+                                        // 刷新表格
+                                        table.reload('{beanParamName}Table');
+                                    });
+                                }
+                            }
+                        });
+                    });
+                } else if(obj.event === 'edit') {
+                    // 编辑操作
+                    xadmin.open('编辑信息', '/{beanParamName}/edit?id=' + data.id);
+                }
+            });
+
+            // 搜索功能
+            form.on('submit(search)', function (data) {
+                // 表格渲染
+                renderTable(data.field)
+                return false;
+            });
+        });
+
+        /**
+         * 批量删除
+         */
+        function delAll() {
+            layer.confirm('确认要删除吗？', function (index) {
+                // 发异步进行删除所有被选中的
+                layer.msg('暂未实现', {icon: 1});
+                $(".layui-form-checked").not('.header').parents('tr').remove();
+            });
+        }
+
+        /**
+         * 表格渲染
+         * @param field
+         */
+        function renderTable(field) {
+            // 表格渲染
+            table.render({
+                elem: '#{beanParamName}Table',
+                url: '/{beanParamName}/list', //数据接口
+                page: true, //开启分页
+                where: {//查询条件
+                    // 根据自己需求修改查询条件
+                    "field1": field.field1
+                },
+                parseData: function (res) { //res 即为原始返回的数据
+                    return {
+                        "code": res.retCode,     //解析接口状态
+                        "msg": res.retMsg,       //解析提示文本
+                        "count": res.data.total, //解析数据长度
+                        "data": res.data.datas   //解析数据列表
+                    };
+                },
+                cols: [
+                    [   //表头
+                        {type: 'checkbox', fixed: 'left'},
+{columnsDatas}
+                        {title: '操作', toolbar: '#toolBar', fixed: 'right', width: 150}
+                    ]
+                ]
+            });
+        }
+    </script>
+</body>
+</html>

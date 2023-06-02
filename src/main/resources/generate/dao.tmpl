@@ -1,0 +1,63 @@
+package {daoPackageName};
+
+import {beanPackageName}.{beanName};
+import org.apache.ibatis.annotations.*;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Dao
+ * @author ywy
+ * @date
+ */
+@Mapper
+public interface {daoName} {
+    /**
+     * 查询数据个数
+     * @param params
+     * @return
+     */
+    int count(@Param("params") Map<String, Object> params);
+
+    /**
+     * 分页查询信息
+     * @param offset
+     * @param limit
+     * @param params
+     * @return
+     */
+    List<{beanName}> listByPage(@Param("offset") Integer offset, @Param("limit") Integer limit, @Param("params") Map<String, Object> params);
+
+    /**
+     * 根据id查询信息
+     * @param id
+     * @return
+     */
+    @Select("select * from {tableName} where id = #{id}")
+    {beanName} getById(Integer id);
+
+    /**
+     * 保存信息
+     * @param {beanParamName}
+     * @return
+     */
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    @Insert("insert into {tableName}({insertColumns}) values({insertValues})")
+    Integer save({beanName} {beanParamName});
+
+    /**
+     * 修改信息
+     * sql在mapper xml文件中
+     * @param {beanParamName}
+     * @return
+     */
+    Integer update({beanName} {beanParamName});
+
+    /**
+     * 删除信息
+     * @param id
+     * @return
+     */
+    @Delete("delete from {tableName} where id = #{id}")
+    Integer delete(Integer id);
+}

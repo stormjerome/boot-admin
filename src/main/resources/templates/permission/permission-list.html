@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html class="x-admin-sm" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>管理后台-权限列表</title>
+    <header th:replace="header::html"/>
+</head>
+<body>
+<div class="x-nav">
+    <span class="layui-breadcrumb">
+        <a href="#">首页</a>
+        <a href="#">权限管理</a>
+        <a><cite>权限列表</cite></a>
+    </span>
+    <a class="layui-btn layui-btn-small refresh" onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh"></i>
+    </a>
+</div>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <button class="layui-btn" onclick="crollAll()">
+                        <i class="layui-icon layui-icon-more-vertical"></i>折叠展开
+                    </button>
+                    <button class="layui-btn" onclick="xadmin.open('新增权限','/permission/add')" permission="sys:permission:add">
+                        <i class="layui-icon layui-icon-add-circle-fine"></i>添加
+                    </button>
+                </div>
+                <div class="layui-card-body">
+                    <table id="menuTable" lay-filter="menuTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/html" id="toolBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit" permission="sys:permission:edit">编辑</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del" permission="sys:permission:del">删除</a>
+</script>
+<script type="text/javascript">
+    var treeTable;
+    var treeTableObj;
+    // 折叠或展开
+    var croll = false;
+
+    // 引入treetable-lay
+    layui.config({
+        base: '/'
+    }).extend({
+        treeTable: 'treetable-lay/treeTable'
+    }).use(['treeTable', 'layer'], function () {
+        var layer = layui.layer;
+        treeTable = layui.treeTable;
+
+        // 表格渲染
+        renderTable();
+
+        // 监听工具条
+        treeTable.on('tool(menuTable)', function (obj) {
+           var data = obj.data;
+
+           // 删除操作
+           if (obj.event === 'del') {
+               layer.confirm('确认要删除吗？', function (index) {
+                   // 发送请求异步删除数据
+                   $.ajax({
+                       url: '/permission/delete',
+                       type: "DELETE",
+                       data: {id: data.id},
+                       dataType: 'json',
+                       success: function (result) {
+                           if (result.httpCode != 200 || result.retCode != 0) {
+                               layer.alert(result.retMsg);
+                           } else {
+                               layer.alert("删除成功", {icon: 1}, function (index) {
+                                   //关闭弹窗
+                                   layer.close(index);
+
+                                   // 刷新表格
+                                   treeTable.reload('menuTable');
+                               });
+                           }
+                       }
+                   });
+               });
+           } else if (obj.event === 'edit') {
+               // 编辑操作
+               xadmin.open('编辑权限信息', '/permission/edit?id=' + data.id);
+           }
+        });
+    });
+
+    /**
+     * 表格渲染
+     */
+    function renderTable() {
+        // 表格渲染
+        treeTableObj = treeTable.render({
+            treeColIndex: 1,          // 树形图标显示在第几列
+            treeSpid: -1,             // 最上级的父级id
+            treeIdName: 'id',         // id字段的名称
+            treePidName: 'parentId',  // pid字段的名称
+            treeDefaultClose: false,  // 是否默认折叠
+            treeLinkage: true,        // 父级展开时是否自动展开所有子级
+            elem: '#menuTable',
+            url: '/permission/list',
+            parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": res.retCode,     //解析接口状态
+                    "msg": res.retMsg,       //解析提示文本
+                    "data": res.data   //解析数据列表
+                };
+            },
+            tree: {
+                iconIndex: 1,           // 折叠图标显示在第几列
+                isPidData: true,        // 是否是id、pid形式数据
+                idName: 'id',           // id字段名称
+                pidName: 'parentId',    // pid字段名称
+                arrowType: 'arrow2',    // 自定义箭头风格
+            /*    getIcon: function(d) {  // 自定义图标，显示在名称前
+                    // d是当前行的数据
+                    if (d.iconfont != null) {  // 判断是否有子集
+                        return "<i class=\"ew-tree-icon iconfont\">" + d.iconfont + "</i>";
+                    } else {
+                        return "<i class=\"ew-tree-icon layui-icon layui-icon-file\"></i>";
+                    }
+                }*/
+            },
+            cols: [
+                [
+                    {type: 'numbers', title: '#', width: 60},
+                    {field: 'name', title: '名称', width: 150},
+                    {
+                        field: 'iconfont', title: '图标', templet: function (d) {
+                            return d.iconfont != null ? "<i class=\"iconfont\">" + d.iconfont + "</i>" : "";
+                        }
+                    },
+                    {field: 'url', title: '链接'},
+                    {field: 'sort', title: '排序'},
+                    {field: 'permission', title: '资源标识'},
+                    {
+                        field: 'type', title: '类型', templet: function (d) {
+                            return d.type == '1' ? '菜单' : '按钮';
+                        }
+                    },
+                    {title: '操作', toolbar: '#toolBar', fixed: 'right', width: 150}
+                ]
+            ],
+            done:function () {
+                // 展开所有节点
+                treeTableObj.expandAll();
+
+                checkPermissoin();
+            }
+        });
+    }
+
+    /**
+     * 折叠或展开
+     */
+    function crollAll() {
+        if (croll) {
+            treeTableObj.expandAll();
+            croll = false;
+        } else {
+            treeTableObj.foldAll();
+            croll = true;
+        }
+    }
+</script>
+</html>
